@@ -14,9 +14,9 @@
 #import "ProgramItem.h"
 #import "CinequestItem.h"
 
-
+//This class provides administrative methods for the Festival Object
 @implementation Festival
-
+//create getters setters for the Festival fields
 @synthesize programItems;
 @synthesize films;
 @synthesize schedules;
@@ -42,7 +42,7 @@
 @synthesize sortedKeysInDateToSpecialsDictionary;
 @synthesize sortedIndexesInDateToSpecialsDictionary;
 
-
+//Initialization method for Festival Class
 - (id) init
 {
 	self = [super init];
@@ -76,7 +76,7 @@
 	
     return self;
 }
-
+//Given a date, return the schedule from the Festival which starts on that date.
 - (NSMutableArray*) getSchedulesForDay:(NSString *)date
 {
     NSMutableArray *result = [NSMutableArray new];
@@ -91,7 +91,7 @@
 	
     return result;
 }
-
+//Given an id, find the event from Special and return the particular Special object that matches the id,  otherwise return nil
 - (Special*) getEventForId:(NSString *)ID
 {
 	for(Special* event in specials)
@@ -104,7 +104,7 @@
 	
     return nil;
 }
-
+//Given an id, return the Forum object from this particular Festival which matches the id, otherwise return nil
 - (Forum*) getForumForId:(NSString *)ID
 {
  	for(Forum* forum in forums)
@@ -117,7 +117,7 @@
 	
     return nil;
 }
-
+//Given an id, return the film that matches the id in this Festival, otherwise return nil
 - (Film*) getFilmForId:(NSString *)ID
 {
  	for(Film* film in films)
@@ -130,7 +130,7 @@
 	
     return nil;
 }
-
+//Given an id, return a ProgramItem that matches the id in this Festival, otherwise return nil
 - (ProgramItem*) getProgramItemForId:(NSString *)ID
 {
  	for(ProgramItem* item in programItems)
@@ -143,7 +143,7 @@
 	
     return nil;
 }
-
+//Given an id, first find if a forum exist for the id and return, if a forum is not found, get an event which matches the id and return, if neither forum nor event is found, then return a film matching the id
 - (CinequestItem*) getScheduleItem:(NSString *)itemID
 {
 	CinequestItem* item = [self getForumForId:itemID];
