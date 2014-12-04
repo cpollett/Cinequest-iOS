@@ -5,6 +5,7 @@
 //  Created by Luca Severini on 10/1/13.
 //  Copyright (c) 2013 San Jose State University. All rights reserved.
 //
+//  Edited by Karan Khare and Ramya Shenoy on 11/24/2014
 
 
 #import "EventsViewController.h"
@@ -387,7 +388,8 @@ static NSString *const kEventCellIdentifier = @"EventCell";
 - (BOOL) compareStartDate:(NSDate *)startDate withSectionDate:(NSDate *)sectionDate
 {
     NSCalendar *calendar = [NSCalendar currentCalendar];
-    NSInteger components = (NSDayCalendarUnit | NSMonthCalendarUnit | NSYearCalendarUnit);
+    //removed year as a part of component here
+    NSInteger components = (NSDayCalendarUnit | NSMonthCalendarUnit);
     
     NSDateComponents *date1Components = [calendar components:components fromDate: startDate];
     NSDateComponents *date2Components = [calendar components:components fromDate: sectionDate];

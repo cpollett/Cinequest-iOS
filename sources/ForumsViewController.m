@@ -1,79 +1,79 @@
 //
-//  EventsViewController.m
+//  ForumsViewController.m
 //  CineQuest
 //
 //  Created by Luca Severini on 10/1/13.
 //  Copyright (c) 2013 San Jose State University. All rights reserved.
 //
-//Edited by Karan Khare and Ramya Shenoy on 11/24/2014
+//  Edited by Karan Khare and Ramya Shenoy on 11/23/2014
+//
+//
 
-#import "EventsViewController.h"
-#import "EventDetailViewController.h"
 #import "CinequestAppDelegate.h"
+#import "ForumsViewController.h"
+#import "ForumDetailViewController.h"
+#import "Forum.h"
 #import "Schedule.h"
-#import "NewsViewController.h"
-#import "Special.h"
 #import "DataProvider.h"
 
 
-static NSString *const kEventCellIdentifier = @"EventCell";
+static NSString *const kForumCellIdentifier = @"ForumCell";
 
-@implementation EventsViewController
+@implementation ForumsViewController
 
 @synthesize refreshControl;
 @synthesize switchTitle;
-@synthesize eventsTableView;
+@synthesize forumsTableView;
 @synthesize activityIndicator;
-@synthesize dateToEventsDictionary;
-@synthesize sortedKeysInDateToEventsDictionary;
-@synthesize sortedIndexesInDateToEventsDictionary;
+@synthesize dateToForumsDictionary;
+@synthesize sortedKeysInDateToForumsDictionary;
+@synthesize sortedIndexesInDateToForumsDictionary;
 
-- (void)didReceiveMemoryWarning
+- (void) didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
 }
 
-#pragma mark UIViewController Methods
+#pragma mark - UIViewController
 
-- (void) viewDidLoad
+- (void)viewDidLoad
 {
     [super viewDidLoad];
 
 	delegate = appDelegate;
 	mySchedule = delegate.mySchedule;
-		
+	
 	dateDetector = [NSDataDetector dataDetectorWithTypes:NSTextCheckingTypeDate error:nil];
-
     titleFont = [UIFont boldSystemFontOfSize:[UIFont labelFontSize]];
 	timeFont = [UIFont systemFontOfSize:[UIFont systemFontSize]];
 	sectionFont = [UIFont boldSystemFontOfSize:18.0];
 	venueFont = timeFont;
-  
+
 	NSDictionary *attribute = [NSDictionary dictionaryWithObject:[UIFont boldSystemFontOfSize:16.0f] forKey:NSFontAttributeName];
 	[switchTitle setTitleTextAttributes:attribute forState:UIControlStateNormal];
 	[switchTitle removeSegmentAtIndex:1 animated:NO];
-		
-	refreshControl = [UIRefreshControl new];
-	// refreshControl.attributedTitle = [[NSAttributedString alloc] initWithString:@"Updating Events..."];
-	[refreshControl addTarget:self action:@selector(refresh) forControlEvents:UIControlEventValueChanged];
-	[((UITableViewController*)self.eventsTableView.delegate) setRefreshControl:refreshControl];
-	[self.eventsTableView addSubview:refreshControl];
 
-	eventsTableView.tableHeaderView = nil;
-	eventsTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+	refreshControl = [UIRefreshControl new];
+	// refreshControl.attributedTitle = [[NSAttributedString alloc] initWithString:@"Updating Forums..."];
+	[refreshControl addTarget:self action:@selector(refresh) forControlEvents:UIControlEventValueChanged];
+	[((UITableViewController*)self.forumsTableView.delegate) setRefreshControl:refreshControl];
+	[self.forumsTableView addSubview:refreshControl];
+
+	forumsTableView.tableHeaderView = nil;
+	forumsTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
 }
 
 - (void) viewWillAppear:(BOOL)animated
 {
 	[super viewWillAppear:animated];
+    
+	self.dateToForumsDictionary = [delegate.festival.dateToForumsDictionary mutableCopy];
+	self.sortedKeysInDateToForumsDictionary = [delegate.festival.sortedKeysInDateToForumsDictionary mutableCopy];
+	self.sortedIndexesInDateToForumsDictionary = [delegate.festival.sortedIndexesInDateToForumsDictionary mutableCopy];
 	
-	self.dateToEventsDictionary = [delegate.festival.dateToSpecialsDictionary mutableCopy];
-	self.sortedKeysInDateToEventsDictionary = [delegate.festival.sortedKeysInDateToSpecialsDictionary mutableCopy];
-	self.sortedIndexesInDateToEventsDictionary = [delegate.festival.sortedIndexesInDateToSpecialsDictionary mutableCopy];
-
 	[self syncTableDataWithScheduler];
-	
-    [self.eventsTableView reloadData];
+
+	[self.forumsTableView reloadData];
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receivedNotification:) name:FEED_UPDATED_NOTIFICATION object:nil];
 }
@@ -82,9 +82,9 @@ static NSString *const kEventCellIdentifier = @"EventCell";
 {
 	[super viewWillDisappear: animated];
 	
-	self.dateToEventsDictionary = nil;
-	self.sortedKeysInDateToEventsDictionary = nil;
-	self.sortedIndexesInDateToEventsDictionary = nil;
+	self.dateToForumsDictionary = nil;
+	self.sortedKeysInDateToForumsDictionary = nil;
+	self.sortedIndexesInDateToForumsDictionary = nil;
 
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
@@ -93,16 +93,16 @@ static NSString *const kEventCellIdentifier = @"EventCell";
 {
 	[super viewDidAppear: animated];
 	
-	if([[NSUserDefaults standardUserDefaults] boolForKey:@"EventsUpdated"])
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"ForumsUpdated"])
 	{
-		[appDelegate showMessage:@"Events have been updated" onView:self.view hideAfter:3.0];
+		[appDelegate showMessage:@"Forums have been updated" onView:self.view hideAfter:3.0];
 		
-		[[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"EventsUpdated"];
+		[[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"ForumsUpdated"];
         [[NSUserDefaults standardUserDefaults] synchronize];
 	}
 }
 
-#pragma mark Private Methods
+#pragma mark - Private Methods
 
 - (void) refresh
 {
@@ -120,22 +120,22 @@ static NSString *const kEventCellIdentifier = @"EventCell";
 {
     if ([[notification name] isEqualToString:FEED_UPDATED_NOTIFICATION]) // Not really necessary until there is only one notification
 	{
-		[self performSelectorOnMainThread:@selector(updateDataAndTable) withObject:nil waitUntilDone:NO];
+ 		[self performSelectorOnMainThread:@selector(updateDataAndTable) withObject:nil waitUntilDone:NO];
 
-		[appDelegate showMessage:@"Events have been updated" onView:self.view hideAfter:3.0];
+		[appDelegate showMessage:@"Forums have been updated" onView:self.view hideAfter:3.0];
 
-		[[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"EventsUpdated"];
+		[[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"ForumsUpdated"];
         [[NSUserDefaults standardUserDefaults] synchronize];
 	}
 }
 
 - (void) updateDataAndTable
 {
-	self.dateToEventsDictionary = [delegate.festival.dateToSpecialsDictionary mutableCopy];
-	self.sortedKeysInDateToEventsDictionary = [delegate.festival.sortedKeysInDateToSpecialsDictionary mutableCopy];
-	self.sortedIndexesInDateToEventsDictionary = [delegate.festival.sortedIndexesInDateToSpecialsDictionary mutableCopy];
+	self.dateToForumsDictionary = [delegate.festival.dateToForumsDictionary mutableCopy];
+	self.sortedKeysInDateToForumsDictionary = [delegate.festival.sortedKeysInDateToForumsDictionary mutableCopy];
+	self.sortedIndexesInDateToForumsDictionary = [delegate.festival.sortedIndexesInDateToForumsDictionary mutableCopy];
 	
-	[self.eventsTableView reloadData];
+	[self.forumsTableView reloadData];
 }
 
 - (NSDate*) dateFromString:(NSString*)string
@@ -155,7 +155,7 @@ static NSString *const kEventCellIdentifier = @"EventCell";
 {
     [delegate populateCalendarEntries];
     
-	NSInteger sectionCount = [self.sortedKeysInDateToEventsDictionary count];
+	NSInteger sectionCount = [self.sortedKeysInDateToForumsDictionary count];
 	NSInteger myScheduleCount = [mySchedule count];
 	if(myScheduleCount == 0)
 	{
@@ -165,37 +165,79 @@ static NSString *const kEventCellIdentifier = @"EventCell";
 	// Sync current data
 	for (NSUInteger section = 0; section < sectionCount; section++)
 	{
-		NSString *day = [self.sortedKeysInDateToEventsDictionary objectAtIndex:section];
-		NSMutableArray *events =  [self.dateToEventsDictionary objectForKey:day];
-		NSInteger eventCount = [events count];
+		NSString *day = [self.sortedKeysInDateToForumsDictionary objectAtIndex:section];
+		NSMutableArray *events =  [self.dateToForumsDictionary objectForKey:day];
+		NSInteger forumCount = [events count];
 		
-		for (NSUInteger row = 0; row < eventCount; row++)
+		for (NSUInteger row = 0; row < forumCount; row++)
 		{
 			NSArray *schedules = [[events objectAtIndex:row] schedules];
 			NSInteger scheduleCount = [schedules count];
-
+			
 			for (NSUInteger schedIdx = 0; schedIdx < scheduleCount; schedIdx++)
 			{
 				Schedule *schedule = [schedules objectAtIndex:schedIdx];
-
-				NSUInteger idx;
-				for (idx = 0; idx < myScheduleCount; idx++)
+				
+				for (NSUInteger idx = 0; idx < myScheduleCount; idx++)
 				{
-					Schedule *selSchedule = [mySchedule objectAtIndex:idx];
-					if ([selSchedule.ID isEqualToString:schedule.ID])
+					Schedule *mySched = [mySchedule objectAtIndex:idx];
+					if ([mySched.ID isEqualToString:schedule.ID])
 					{
 						schedule.isSelected = YES;
-						break;
 					}
-				}
-				if(idx == myScheduleCount)
-				{
-					schedule.isSelected = NO;
 				}
 			}
 		}
 	}
 }
+
+- (Schedule*) getItemForSender:(id)sender event:(id)touchEvent
+{
+    NSSet *touches = [touchEvent allTouches];
+	UITouch *touch = [touches anyObject];
+	CGPoint currentTouchPosition = [touch locationInView:self.forumsTableView];
+	NSIndexPath *indexPath = [self.forumsTableView indexPathForRowAtPoint:currentTouchPosition];
+	NSInteger row = [indexPath row];
+	NSInteger section = [indexPath section];
+    Schedule *schedule = nil;
+    
+    if (indexPath != nil)
+	{
+		NSString *day = [self.sortedKeysInDateToForumsDictionary  objectAtIndex:section];
+		NSDate *date = [self dateFromString:day];
+		
+		Forum *forum = [[self.dateToForumsDictionary objectForKey:day] objectAtIndex:row];		
+		for(schedule in forum.schedules)
+		{
+			if ([self compareStartDate:schedule.startDate withSectionDate:date])
+			{
+				break;
+			}
+		}
+	}
+    
+    return schedule;
+}
+
+//Returns result of comparision between the StartDate of Schedule
+//with the SectionDate of tableview using Calendar Components Day-Month-Year
+- (BOOL) compareStartDate:(NSDate *)startDate withSectionDate:(NSDate *)sectionDate
+{
+    //Compare Date using Day-Month-year components excluding the time
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+
+    NSInteger components = (NSDayCalendarUnit | NSMonthCalendarUnit );
+    
+    NSDateComponents *date1Components = [calendar components:components fromDate: startDate];
+    NSDateComponents *date2Components = [calendar components:components fromDate: sectionDate];
+    
+    startDate = [calendar dateFromComponents:date1Components];
+    sectionDate = [calendar dateFromComponents:date2Components];
+    
+    return ([startDate compare:sectionDate] >= NSOrderedSame);
+}
+
+#pragma mark - Actions
 
 - (void) calendarButtonTapped:(id)sender event:(id)touchEvent
 {
@@ -215,78 +257,31 @@ static NSString *const kEventCellIdentifier = @"EventCell";
     [calendarButton setImage:buttonImage forState:UIControlStateNormal];
 }
 
-- (Schedule*) getItemForSender:(id)sender event:(id)touchEvent
-{
-    NSSet *touches = [touchEvent allTouches];
-	UITouch *touch = [touches anyObject];
-	CGPoint currentTouchPosition = [touch locationInView:self.eventsTableView];
-	NSIndexPath *indexPath = [self.eventsTableView indexPathForRowAtPoint:currentTouchPosition];
-	NSInteger row = [indexPath row];
-	NSInteger section = [indexPath section];
-    Schedule *schedule = nil;
-    
-    if (indexPath != nil)
-	{
-		NSString *day = [self.sortedKeysInDateToEventsDictionary  objectAtIndex:section];
-		NSDate *date = [self dateFromString:day];
-		
-		Special *event = [[self.dateToEventsDictionary objectForKey:day] objectAtIndex:row];
-		
-		for (schedule in event.schedules)
-		{
-            if ([self compareStartDate:schedule.startDate withSectionDate:date])
-			{
-				break;
-			}
-		}
-    }
-	
-    return schedule;
-}
-
-//Returns result of comparision between the StartDate of Schedule
-//with the SectionDate of tableview using Calendar Components Day-Month-Year
-- (BOOL) compareStartDate:(NSDate *)startDate withSectionDate:(NSDate *)sectionDate
-{
-    //Compare Date using Day-Month-year components excluding the time
-    NSCalendar *calendar = [NSCalendar currentCalendar];
-    //removed year as a part of component here
-    NSInteger components = (NSDayCalendarUnit | NSMonthCalendarUnit );
-    
-    NSDateComponents *date1Components = [calendar components:components fromDate: startDate];
-    NSDateComponents *date2Components = [calendar components:components fromDate: sectionDate];
-    
-    startDate = [calendar dateFromComponents:date1Components];
-    sectionDate = [calendar dateFromComponents:date2Components];
-    
-    return ([startDate compare:sectionDate] >= NSOrderedSame);
-}
-
-#pragma mark UITableView DataSource
+#pragma mark - UITableView Datasource
 
 - (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return [self.sortedKeysInDateToEventsDictionary count];
+    return [self.sortedKeysInDateToForumsDictionary count];
 }
 
-- (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+- (NSInteger) tableView:(UITableView*)tableView numberOfRowsInSection:(NSInteger)section
 {
-	NSString *day = [self.sortedKeysInDateToEventsDictionary objectAtIndex:section];
-	return [[self.dateToEventsDictionary objectForKey:day] count];
+	NSString *day = [self.sortedKeysInDateToForumsDictionary objectAtIndex:section];
+	return [[self.dateToForumsDictionary objectForKey:day] count];
 }
 
 - (UITableViewCell*) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 	NSUInteger section = [indexPath section];
 	NSUInteger row = [indexPath row];
-	
-	NSString *day = [self.sortedKeysInDateToEventsDictionary objectAtIndex:section];
+
+	NSString *day = [self.sortedKeysInDateToForumsDictionary objectAtIndex:section];
 	NSDate *date = [self dateFromString:day];
-
-	Special *event = [[self.dateToEventsDictionary objectForKey:day] objectAtIndex:row];
-
+	
+	Forum *forum = [[self.dateToForumsDictionary objectForKey:day] objectAtIndex:row];
+	
 	Schedule *schedule = nil;
-	for (schedule in event.schedules) {
+	for(schedule in forum.schedules) {
         
         if ([self compareStartDate:schedule.startDate withSectionDate:date]) {
 			break;
@@ -304,43 +299,47 @@ static NSString *const kEventCellIdentifier = @"EventCell";
 			break;
 		}
 	}
-
-	UIImage *buttonImage = selected ? [UIImage imageNamed:@"cal_selected.png"] : [UIImage imageNamed:@"cal_unselected.png"];
+	
+    UIImage *buttonImage = selected ? [UIImage imageNamed:@"cal_selected.png"] : [UIImage imageNamed:@"cal_unselected.png"];
+    NSInteger titleNumLines = 1;
 	UILabel *titleLabel = nil;
 	UILabel *timeLabel = nil;
 	UILabel *venueLabel = nil;
 	UIButton *calendarButton = nil;
 	
-	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kEventCellIdentifier];
+	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:kForumCellIdentifier];
     if (cell == nil)
 	{
-		cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kEventCellIdentifier];
+		cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kForumCellIdentifier];
 		cell.selectionStyle = UITableViewCellSelectionStyleNone;
-		
-		titleLabel = [UILabel new];
+
+		titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(52.0, 6.0, 250.0, 20.0)];
 		titleLabel.tag = CELL_TITLE_LABEL_TAG;
         titleLabel.font = titleFont;
 		[cell.contentView addSubview:titleLabel];
 		
-		timeLabel = [UILabel new];
+		timeLabel = [[UILabel alloc] initWithFrame:CGRectMake(52.0, 28.0, 250.0, 20.0)];
 		timeLabel.tag = CELL_TIME_LABEL_TAG;
         timeLabel.font = timeFont;
 		[cell.contentView addSubview:timeLabel];
 		
-		venueLabel = [UILabel new];
+		venueLabel = [[UILabel alloc] initWithFrame:CGRectMake(52.0, 46.0, 250.0, 20.0)];
 		venueLabel.tag = CELL_VENUE_LABEL_TAG;
         venueLabel.font = venueFont;
 		[cell.contentView addSubview:venueLabel];
 		
 		calendarButton = [UIButton buttonWithType:UIButtonTypeCustom];
-		calendarButton.tag = CELL_LEFTBUTTON_TAG;
+		calendarButton.frame = CGRectMake(11.0, 16.0, 32.0, 32.0);
+		[calendarButton setImage:buttonImage forState:UIControlStateNormal];
+		
 		[calendarButton addTarget:self action:@selector(calendarButtonTapped:event:) forControlEvents:UIControlEventTouchUpInside];
+		calendarButton.backgroundColor = [UIColor clearColor];
+		calendarButton.tag = CELL_LEFTBUTTON_TAG;
 		[cell.contentView addSubview:calendarButton];
 	}
 	
-	NSInteger titleNumLines = 1;
 	titleLabel = (UILabel*)[cell viewWithTag:CELL_TITLE_LABEL_TAG];
-	CGSize size = [event.name sizeWithAttributes:@{ NSFontAttributeName : titleFont }];
+	CGSize size = [forum.name sizeWithAttributes:@{ NSFontAttributeName : titleFont }];
     if(size.width < 256.0)
     {
         [titleLabel setFrame:CGRectMake(52.0, 6.0, 256.0, 20.0)];
@@ -352,31 +351,21 @@ static NSString *const kEventCellIdentifier = @"EventCell";
     }
     
     [titleLabel setNumberOfLines:titleNumLines];
-    titleLabel.text = event.name;
+    titleLabel.text = forum.name;
     
-	timeLabel = (UILabel*)[cell viewWithTag:CELL_TIME_LABEL_TAG];
+    timeLabel = (UILabel*)[cell viewWithTag:CELL_TIME_LABEL_TAG];
 	[timeLabel setFrame:CGRectMake(52.0, titleNumLines == 1 ? 28.0 : 50.0, 250.0, 20.0)];
-	timeLabel.text = [NSString stringWithFormat:@"%@ %@ - %@", schedule.dateString, schedule.startTime, schedule.endTime];
-	
-	venueLabel = (UILabel*)[cell viewWithTag:CELL_VENUE_LABEL_TAG];
+    timeLabel.text = [NSString stringWithFormat:@"%@ %@ - %@", schedule.dateString, schedule.startTime, schedule.endTime];
+    
+    venueLabel = (UILabel*)[cell viewWithTag:CELL_VENUE_LABEL_TAG];
 	[venueLabel setFrame:CGRectMake(52.0, titleNumLines == 1 ? 46.0 : 68.0, 250.0, 20.0)];
-	venueLabel.text = [NSString stringWithFormat:@"Venue: %@", schedule.venue];
-	
-	calendarButton = (UIButton*)[cell viewWithTag:CELL_LEFTBUTTON_TAG];
+    venueLabel.text = [NSString stringWithFormat:@"Venue: %@", schedule.venue];
+    
+    calendarButton = (UIButton*)[cell viewWithTag:CELL_LEFTBUTTON_TAG];
 	[calendarButton setFrame:CGRectMake(8.0, titleNumLines == 1 ? 12.0 : 24.0, 40.0, 40.0)];
 	[calendarButton setImage:buttonImage forState:UIControlStateNormal];
-	
+    
     return cell;
-}
-
-- (NSArray*) sectionIndexTitlesForTableView:(UITableView*)tableView
-{
-#pragma message "** OS bug **"
-	// Temporary fix for crash in [self.filmsTableView reloadData] usually caused by Google+-related code
-	// http://stackoverflow.com/questions/18918986/uitableview-section-index-related-crashes-under-ios-7
-	// return nil;
-	
-	return self.sortedIndexesInDateToEventsDictionary;
 }
 
 - (UIView*) tableView:(UITableView*)tableView viewForHeaderInSection:(NSInteger)section
@@ -393,17 +382,22 @@ static NSString *const kEventCellIdentifier = @"EventCell";
 	label.font = sectionFont;
 	[view addSubview:label];
 	
-	label.text = [NSString stringWithFormat:@"  %@", [self.sortedKeysInDateToEventsDictionary objectAtIndex:section]];
+	label.text = [NSString stringWithFormat:@"  %@", [self.sortedKeysInDateToForumsDictionary objectAtIndex:section]];
 	
 	return view;
 }
 
-#pragma mark UITableView delegate
-
-- (CGFloat) tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+- (NSArray*) sectionIndexTitlesForTableView:(UITableView*)tableView
 {
-	return 0.01;		// This creates a "invisible" footer
+#pragma message "** OS bug **"
+	// Temporary fix for crash in [self.filmsTableView reloadData] usually caused by Google+-related code
+	// http://stackoverflow.com/questions/18918986/uitableview-section-index-related-crashes-under-ios-7
+	// return nil;
+	
+	return self.sortedIndexesInDateToForumsDictionary;
 }
+
+#pragma mark - UITableView Delegate
 
 - (CGFloat) tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
@@ -414,19 +408,18 @@ static NSString *const kEventCellIdentifier = @"EventCell";
 {
 	NSUInteger section = [indexPath section];
 	NSUInteger row = [indexPath row];
-
-	NSString *day = [self.sortedKeysInDateToEventsDictionary  objectAtIndex:section];
+	
+	NSString *day = [self.sortedKeysInDateToForumsDictionary  objectAtIndex:section];
 	NSDate *date = [self dateFromString:day];
 	
-	Special *event = [[self.dateToEventsDictionary objectForKey:day] objectAtIndex:row];
-	
-	for(Schedule *schedule in event.schedules)
+	Forum *forum = [[self.dateToForumsDictionary objectForKey:day] objectAtIndex:row];
+	for(Schedule *schedule in forum.schedules)
 	{
         if ([self compareStartDate:schedule.startDate withSectionDate:date])
 		{
-			EventDetailViewController *eventDetail = [[EventDetailViewController alloc] initWithEvent:schedule.itemID];
+			ForumDetailViewController *eventDetail = [[ForumDetailViewController alloc] initWithForum:schedule.itemID];
 			[self.navigationController pushViewController:eventDetail animated:YES];
-
+			
 			break;
 		}
 	}
@@ -437,10 +430,10 @@ static NSString *const kEventCellIdentifier = @"EventCell";
 	NSUInteger section = [indexPath section];
 	NSUInteger row = [indexPath row];
     
-	NSString *day = [self.sortedKeysInDateToEventsDictionary  objectAtIndex:section];
-	Special *event = [[self.dateToEventsDictionary objectForKey:day] objectAtIndex:row];
+	NSString *day = [self.sortedKeysInDateToForumsDictionary  objectAtIndex:section];
+	Forum *forum = [[self.dateToForumsDictionary objectForKey:day] objectAtIndex:row];
     
-    CGSize size = [event.name sizeWithAttributes:@{ NSFontAttributeName : titleFont }];
+    CGSize size = [forum.name sizeWithAttributes:@{ NSFontAttributeName : titleFont }];
     if(size.width >= 256.0)
     {
         return 90.0;
@@ -449,6 +442,11 @@ static NSString *const kEventCellIdentifier = @"EventCell";
     {
         return 68.0;
     }
+}
+
+- (CGFloat) tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+	return 0.01;		// This creates a "invisible" footer
 }
 
 @end

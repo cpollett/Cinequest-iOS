@@ -763,6 +763,9 @@
 				81C8B37A17EBAB3200033D4F /* Sources */,
 				81C8B37B17EBAB3200033D4F /* Frameworks */,
 				81C8B37C17EBAB3200033D4F /* Resources */,
+				931DA86118A3D92600F31976 /* ShellScript */,
+				9E694EF01A0F34DE0033F87E /* ShellScript */,
+
 			);
 			buildRules = (
 			);
@@ -801,9 +804,10 @@
 				ORGANIZATIONNAME = "San Jose State University";
 				TargetAttributes = {
 					81C8B37D17EBAB3200033D4F = {
-						DevelopmentTeam = 2ZA68DRGAD;
+						DevelopmentTeam = 4L8PJU4P6D;
 					};
 					C27139351828E8C800BF8DCB = {
+						DevelopmentTeam = 4L8PJU4P6D;
 						TestTargetID = 81C8B37D17EBAB3200033D4F;
 					};
 				};
@@ -915,6 +919,36 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		931DA86118A3D92600F31976 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./Crashlytics.framework/run c3d1ebb5b9d5f416213c217e714ce6a7f1dc0ee6 dc9ea62837685605d23ddce1981e3a34939265821b45edfeeccbc0060ff605b0";
+		};
+		9E694EF01A0F34DE0033F87E /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 
 /* Begin PBXSourcesBuildPhase section */
 		81C8B37A17EBAB3200033D4F /* Sources */ = {
@@ -1118,6 +1152,8 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -1136,6 +1172,7 @@
 				INFOPLIST_FILE = "List of Shows Tests/List of Shows Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -1151,6 +1188,8 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_NS_ASSERTIONS = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -1166,6 +1205,7 @@
 				INFOPLIST_FILE = "List of Shows Tests/List of Shows Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
 			};
