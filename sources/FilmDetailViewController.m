@@ -484,7 +484,7 @@ static NSString *kActionsCellID	= @"ActionsCell";
                 [lblTwitter setTextAlignment:NSTextAlignmentCenter];
                 [cell.contentView addSubview:lblTwitter];
 
-				UIButton *googleButton = [UIButton buttonWithType:UIButtonTypeCustom];
+				/*UIButton *googleButton = [UIButton buttonWithType:UIButtonTypeCustom];
 				googleButton.frame = CGRectMake(140.0, 6.0, 40.0, 40.0);
 				[googleButton addTarget:self action:@selector(shareToGooglePlus:) forControlEvents:UIControlEventTouchDown];
                 [googleButton setImage:[UIImage imageNamed:@"googleplus.png"] forState:UIControlStateNormal];
@@ -494,7 +494,7 @@ static NSString *kActionsCellID	= @"ActionsCell";
                 lblGoogle.text = @"Google+";
                 [lblGoogle setFont:actionFont];
                 [lblGoogle setTextAlignment:NSTextAlignmentCenter];
-                [cell.contentView addSubview:lblGoogle];
+                [cell.contentView addSubview:lblGoogle];*/
 
 				UIButton *mailButton = [UIButton buttonWithType:UIButtonTypeCustom];
 				mailButton.frame = CGRectMake(200.0, 6.0, 40.0, 40.0);
