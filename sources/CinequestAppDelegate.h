@@ -17,7 +17,7 @@
 #define DETAILFORPrgId	@"https://mobile.cinequest.org/mobileCQ.php?type=program_item&iphone&id="
 #define DETAILFORITEM	@"https://mobile.cinequest.org/mobileCQ.php?type=xml&name=items&iphone&id="
 #define MODE			@"https://mobile.cinequest.org/mobileCQ.php?type=mode"
-#define TRENDING_FEED	@"https://www.cinequest.org/trending/XML/MobileTrending_Top10Events.xml"
+#define TRENDING_FEED	@"https://www.cinequest.org/misc/trending/XML/MobileTrending_Top10Events.xml"
 #define NEWS_FOR_DATE_FEED	@"http://cinequest.org/news.php"
 #define VIDEO_FEED      @"https://payments.cinequest.org/websales/feed.ashx?guid=d52499c1-3164-429f-b057-384dd7ec4b23&showslist=true&"
 #define MAIN_FEED		@"https://payments.cinequest.org/websales/feed.ashx?guid=d52499c1-3164-429f-b057-384dd7ec4b23&showslist=true&"
